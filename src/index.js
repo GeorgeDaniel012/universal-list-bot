@@ -12,7 +12,8 @@ const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent
+        GatewayIntentBits.MessageContent,
+        GatewayIntentBits.GuildMessageReactions
     ] 
 });
 
@@ -36,7 +37,6 @@ client.on('messageCreate', (message) => {
     if(!message.content.startsWith(prefix) || message.author.bot) return;
 
     const args = message.content.slice(prefix.length).trim().split(/ (.+)/);
-    console.log("Args:", args);
     const commandName = args.shift().toLowerCase();
 
     // Check if the command exists in the collection
