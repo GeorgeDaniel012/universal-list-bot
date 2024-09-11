@@ -1,18 +1,21 @@
+const addDB = require('../utils/addDB');
+
 module.exports = {
     name: 'add',
-    description: 'Add universe to the DB',
+    description: 'Configure universe and character to be added to DB',
     async execute(message, args) {
         if(!args[0]) {
             return message.channel.send("Please provide a name for this universe.");
         }
 
-        const sentMessage = await message.channel.send(args[0]);
+        const universe = args[0];
+
+        const sentMessage = await message.channel.send(universe);
 
         await sentMessage.react('❓');
         await sentMessage.react('❌');
         
         const reactionCollectorFilter = (reaction, user) => {
-            // console.log(`Reaction: ${reaction.emoji.name}, User: ${user.id}`);
             return ['❓', '❌'].includes(reaction.emoji.name) && user.id === message.author.id;
         };
 
@@ -26,12 +29,12 @@ module.exports = {
         // Create collectors
         const reactionCollector = sentMessage.createReactionCollector({
             filter: reactionCollectorFilter,
-            time: 6000
+            time: 10000 // timeout = 10 seconds
         });
 
         const messageCollector = message.channel.createMessageCollector({
             filter: messageCollectorFilter,
-            time: 6000
+            time: 10000 // timeout = 10 seconds
         });
 
         // Handle reactions
@@ -40,7 +43,11 @@ module.exports = {
             interactionHandled = true; // Set flag to indicate interaction
 
             if (reaction.emoji.name === '❓') {
-                message.reply("You don't know the name of the character...");
+                message.reply(
+                    "It seems like you don't know the name of the character...\n" // +
+                    //`Would you like to add ??? to ${universe}?`
+                );
+                addDB.addDB(message, universe, "???");
             } else if (reaction.emoji.name === '❌') {
                 message.reply('Creation cancelled.');
             }
@@ -53,51 +60,17 @@ module.exports = {
             if (interactionHandled) return; // Ignore if already handled
             interactionHandled = true; // Set flag to indicate interaction
 
-            message.channel.send(`You said: ${reply.content}`);
+            // message.reply(`You said: ${reply.content}`);
+            addDB.addDB(message, universe, reply.content);
             reactionCollector.stop(); // Stop the reaction collector
             messageCollector.stop(); // Stop the message collector
         });
 
-        // Handle timeouts
+        // Handle timeout
         reactionCollector.on('end', (collected, reason) => {
             if (reason === 'time' && !interactionHandled) {
-                message.reply('ba da si tu reply sau react naiba ca ma faci sa astept atata');
+                message.reply('I shall not wait any further. Creation cancelled.');
             }
         });
-
-        // messageCollector.on('end', (collected, reason) => {
-        //     if (reason === 'time' && !interactionHandled) {
-        //         message.reply('ba da si tu reply naiba ca ma faci sa astept atata');
-        //     }
-        // });
-
-
-        // sentMessage.awaitReactions({ filter: reactionCollectorFilter, max: 1, time: 6_000, errors: ['time'] })
-        //     .then(collected => {
-        //         const reaction = collected.first();
-        //         userHasReacted = true;
-        //         //console.log(reaction);
-
-        //         if (reaction.emoji.name === '❓') {
-        //             message.reply("You don't know the name of the character...");
-        //         } else {
-        //             message.reply('Creation cancelled.');
-        //         }
-        //         console.log(collected.size);
-        //     })
-        //     .catch(collected => {
-        //         message.reply('a ok');
-        //     });
-
-        // message.channel.awaitMessages({ filter: messageCollectorFilter, max: 1, time: 6_000, errors: ['time'] })
-        //     .then(collected => {
-        //         const reply = collected.first();
-
-        //         message.channel.send(reply.content);
-        //         //console.log(collected.first());
-        //     })
-        //     .catch(collected => {
-        //         message.channel.send('ba da si tu reply naiba ca ma faci sa astept atata');
-        //     });
     }
 };
