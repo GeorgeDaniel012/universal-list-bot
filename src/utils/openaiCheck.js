@@ -48,7 +48,7 @@ module.exports = {
                 messages: [
                     {
                         role: "user",
-                        content: `What is the name of this character from the series or fandom ${universe}? "${query}". Write just the name of the series or fandom.`,
+                        content: `What is the name of this character from the series or fandom ${universe}? "${query}". Write just the name of the character.`,
                     },
                 ],
                 max_tokens: 100,
