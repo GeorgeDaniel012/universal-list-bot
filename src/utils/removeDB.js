@@ -1,8 +1,11 @@
+require('dotenv').config();
+const http = require('http');
+
 module.exports = {
     name: 'removeDB',
-    description: 'Remove apparition from the DB',
-    async removeDB(message, universe, character) {
-        const sentMessage = await message.reply(`Would you like to remove ${character} from ${universe}?`);
+    description: 'Remove character or universe from the DB',
+    async removeDB(message, id, type) {
+        const sentMessage = await message.reply(`Would you like to remove ${id}?`);
 
         await sentMessage.react('✔️');
         await sentMessage.react('❌');
@@ -16,27 +19,40 @@ module.exports = {
                 const reaction = collected.first();
 
                 if(reaction.emoji.name === '✔️') {
-                    message.channel.send(`Alright, removing ${character} from ${universe}...`);
+                    message.channel.send(`Alright, removing ${id} of type ${type}...`);
 
                     // Encode the universe and character for the URL query
                     const queryParams = new URLSearchParams({
-                        name: character,
-                        universe: universe
+                        id: id
                     }).toString();
 
+                    let options;
+
                     // Set up the DELETE request options with query parameters in the URL
-                    const options = {
-                        hostname: 'example.com',  // Replace with the actual hostname
-                        port: 443, // Use 80 for HTTP, 443 for HTTPS
-                        path: `/api/remove?${queryParams}`,  // Add query params to the URL path
-                        method: 'DELETE', // The DELETE method
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    };
+                    if(type === 'c') {
+                        options = {
+                            hostname: process.env.BACKEND_HOST,
+                            port: process.env.BACKEND_PORT,
+                            path: `/characters?${queryParams}`,  // Add query params to the URL path
+                            method: 'DELETE', // The DELETE method
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        };
+                    } else {
+                        options = {
+                            hostname: process.env.BACKEND_HOST,
+                            port: process.env.BACKEND_PORT,
+                            path: `/universes?${queryParams}`,  // Add query params to the URL path
+                            method: 'DELETE', // The DELETE method
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        };
+                    }
 
                     // Create the request
-                    const req = https.request(options, (res) => {
+                    const req = http.request(options, (res) => {
                         let data = '';
 
                         // Handle the response data
@@ -47,9 +63,9 @@ module.exports = {
                         // When the response has ended
                         res.on('end', () => {
                             if (res.statusCode === 200) {
-                                message.channel.send(`Character "${character}" removed from "${universe}" successfully!`);
+                                message.channel.send(`Id ${id} of type ${type} removed successfully!`);
                             } else {
-                                message.channel.send('Failed to remove the character. Please try again later.');
+                                message.channel.send('Failed to remove. Please try again later.');
                             }
                         });
                     });
@@ -66,7 +82,8 @@ module.exports = {
                     message.reply('Stop wasting my time then. Removal cancelled.');
                 }
             })
-            .catch(() => {
+            .catch((err) => {
+                console.error(err);
                 message.reply('Connection terminated.');
             });
     }

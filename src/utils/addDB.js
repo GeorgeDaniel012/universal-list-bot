@@ -29,9 +29,9 @@ module.exports = {
 
                     // Set up the POST request options
                     const options = {
-                        hostname: process.env.BACKEND_HOST, // Replace with the actual API endpoint
-                        port: process.env.BACKEND_PORT, // Default HTTPS port
-                        path: '/create/characters', // Replace with the actual endpoint path
+                        hostname: process.env.BACKEND_HOST,
+                        port: process.env.BACKEND_PORT,
+                        path: '/create/characters',
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
