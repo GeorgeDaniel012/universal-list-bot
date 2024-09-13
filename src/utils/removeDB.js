@@ -1,8 +1,8 @@
 module.exports = {
-    name: 'addDB',
-    description: 'Add character apparition to the DB',
-    async addDB(message, universe, character) {
-        const sentMessage = await message.reply(`Would you like to add ${character} to ${universe}?`);
+    name: 'removeDB',
+    description: 'Remove apparition from the DB',
+    async removeDB(message, universe, character) {
+        const sentMessage = await message.reply(`Would you like to remove ${character} from ${universe}?`);
 
         await sentMessage.react('✔️');
         await sentMessage.react('❌');
@@ -16,9 +16,9 @@ module.exports = {
                 const reaction = collected.first();
 
                 if(reaction.emoji.name === '✔️') {
-                    message.channel.send(`Alright, adding ${character} to ${universe}...`);
+                    message.channel.send(`Alright, removing ${character} from ${universe}...`);
                 } else {
-                    message.reply('Stop wasting my time then. Creation cancelled.');
+                    message.reply('Stop wasting my time then. Removal cancelled.');
                 }
             })
             .catch(() => {

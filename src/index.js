@@ -1,5 +1,7 @@
 // Load environment variables from the .env file
 require('dotenv').config();
+// import authorized_users from "../../config.json";
+const config = require('../config.json');
 
 // Import the Discord.js Client
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
@@ -43,6 +45,13 @@ client.on('messageCreate', (message) => {
     const command = client.commands.get(commandName);
 
     if (!command) return; // If the command is not found, ignore it
+
+    const authorized_users = config.authorized_users;
+
+    // if(!authorized_users.includes(message.author)) {
+    //     message.reply("Sorry but you're not authorized to do this.");
+    //     return;
+    // }
 
     // Try to execute the command
     try {
